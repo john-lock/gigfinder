@@ -1,11 +1,28 @@
+import boto3
+from botocore.exceptions import ClientError
 import datetime
 import requests
 import json
 from bs4 import BeautifulSoup
 
-# import boto3
-# dynamo resource
-# def lambda_handler(event, context):
+dynamodb = boto3.resource('dynamodb')
+
+
+def lambda_handler(event, context):
+    table = dynamodb.Table("gigs")
+    data = collect()
+    for gig in data:
+        try:
+            table.put_item(
+                           Item={'id': gig['id'],
+                                 'artist': gig['artist'],
+                                 'venue': gig['venue'],
+                                 'date': gig['date'],
+                           },
+                           ConditionExpression='attribute_not_exists(id)')
+        except ClientError as e:
+            if e.response['Error']['Code'] != 'ConditionalCheckFailedException':
+                raise
 
 
 def collect():
@@ -18,14 +35,13 @@ def collect():
         for event in days['events']:
             event_type = event.get('discipline_name')
             if event_type == 'Concert':
-                date = datetime.fromtimestamp(event['date'])
-                artist = event['name']
-                # gig['ticket_url']
-                uid = str(date + artist + venue)
-                gig = {uid: {"venue": venue,
-                             "date": date,
-                             "artist": artist,
-                             }}
-                gigs_list.apped(gig)
-
-collect()
+                date = str(datetime.datetime.fromtimestamp(int(event['date'])))
+                artist = str(event['name'])
+                       uid = str(artist + '_' + date[:10] + '_' + venue)
+                gig = {"id": uid,
+                       "venue": venue,
+                       "date": date[:10],
+                       "artist": artist,
+                       }
+                gigs_list.append(gig)
+    return gigs_list
