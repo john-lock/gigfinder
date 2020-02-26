@@ -2,27 +2,29 @@ import boto3
 from botocore.exceptions import ClientError
 import datetime
 import requests
-import json
-from bs4 import BeautifulSoup
+from data import tracked_artists
 
 dynamodb = boto3.resource('dynamodb')
 
 
-def lambda_handler(event, context):
-    table = dynamodb.Table("gigs")
+def melkweg(event, context):
+    table = dynamodb.Table("gf_db")
     data = collect()
     for gig in data:
-        try:
-            table.put_item(
-                           Item={'id': gig['id'],
-                                 'artist': gig['artist'],
-                                 'venue': gig['venue'],
-                                 'date': gig['date'],
-                           },
-                           ConditionExpression='attribute_not_exists(id)')
-        except ClientError as e:
-            if e.response['Error']['Code'] != 'ConditionalCheckFailedException':
-                raise
+        if gig['artist'].lower() in tracked_artists:
+            try:
+                table.put_item(
+                    Item={'id': gig['id'],
+                          'artist': gig['artist'],
+                          'venue': gig['venue'],
+                          'date': gig['date'],
+                          'ticket_url': gig['ticket_url'],
+                          },
+                    ConditionExpression='attribute_not_exists(id)'
+                )
+            except ClientError as e:
+                if e.response['Error']['Code'] != 'ConditionalCheckFailedException':
+                    raise
 
 
 def collect():
@@ -35,13 +37,15 @@ def collect():
         for event in days['events']:
             event_type = event.get('discipline_name')
             if event_type == 'Concert':
+                ticket_url = event.get('ticket_url')
                 date = str(datetime.datetime.fromtimestamp(int(event['date'])))
                 artist = str(event['name'])
-                       uid = str(artist + '_' + date[:10] + '_' + venue)
+                uid = str(artist + '_' + date[:10] + '_' + venue)
                 gig = {"id": uid,
                        "venue": venue,
                        "date": date[:10],
                        "artist": artist,
+                       "ticket_url": ticket_url,
                        }
                 gigs_list.append(gig)
     return gigs_list
