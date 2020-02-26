@@ -1,11 +1,4 @@
 service: gigfinder
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
-
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-# frameworkVersion: "=X.X.X"
 
 provider:
   name: aws
@@ -13,52 +6,30 @@ provider:
   timeout: 50
   iamRoleStatements:
     - Effect: Allow
-    Action:
-      - dynamodb:DescribeTable
-      - dynamodb:Query
-      - dynamodb:Scan
-      - dynamodb:GetItem
-      - dynamodb:PutItem
-      - dynamodb:UpdateItem
-      - dynamodb:DeleteItem
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:eu-north-1:540344460825:table/gf_db"
 
-# you can overwrite defaults here
-#  stage: dev
-   region: eu-north-1
-
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-
+  region: eu-north-1
 
 functions:
   melkweg:
-    handler: handler.melkweg
-    layer:
+    handler: venues/melkweg.melkweg
+    layers:
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
 
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-resources:
-  Resoures:
+  # tivoli:
+  #   handler: venues/tivoli.tivoli
+  #   layers:
+  #     - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
+  #     - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
 
-    arn:aws:dynamodb:eu-north-1:540344460825:table/gf_db
+# resources:
+#   Resoures:
+#     "arn:aws:dynamodb:eu-north-1:540344460825:table/gf_db"
