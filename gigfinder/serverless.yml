@@ -24,12 +24,14 @@ functions:
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
 
-  # tivoli:
-  #   handler: venues/tivoli.tivoli
+  tivoli:
+    handler: venues/tivoli.tivoli
+    layers:
+      - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
+      - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
+
+  # paard:
+  #   handler: venues/paard.paard
   #   layers:
   #     - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
   #     - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
-
-# resources:
-#   Resoures:
-#     "arn:aws:dynamodb:eu-north-1:540344460825:table/gf_db"

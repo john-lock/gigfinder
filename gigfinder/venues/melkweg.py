@@ -18,7 +18,7 @@ def melkweg(event, context):
                           'artist': gig['artist'],
                           'venue': gig['venue'],
                           'date': gig['date'],
-                          'ticket_url': gig['ticket_url'],
+                          'link': gig['link'],
                           },
                     ConditionExpression='attribute_not_exists(id)'
                 )
@@ -40,12 +40,12 @@ def collect():
                 ticket_url = event.get('ticket_url')
                 date = str(datetime.datetime.fromtimestamp(int(event['date'])))
                 artist = str(event['name'])
-                uid = str(artist + '_' + date[:10] + '_' + venue)
+                uid = artist + '_' + date[:10] + '_' + venue
                 gig = {"id": uid,
                        "venue": venue,
                        "date": date[:10],
                        "artist": artist,
-                       "ticket_url": ticket_url,
+                       "link": ticket_url,
                        }
                 gigs_list.append(gig)
     return gigs_list

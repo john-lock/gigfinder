@@ -1,5 +1,29 @@
+import boto3
+import json
 import requests
+from botocore.exceptions import ClientError
 from bs4 import BeautifulSoup
+from data import tracked_artists
+
+
+def paard(event, context):
+    table = dynamodb.Table("gf_db")
+    data = collect()
+    for gig in data:
+        if gig['artist'].lower() in tracked_artists:
+            try:
+                table.put_item(
+                    Item={'id': gig['id'],
+                          'artist': gig['artist'],
+                          'venue': gig['venue'],
+                          'date': gig['date'],
+                          'link': gig['link']
+                          },
+                    ConditionExpression='attribute_not_exists(id)'
+                )
+            except ClientError as e:
+                if e.response['Error']['Code'] != 'ConditionalCheckFailedException':
+                    raise
 
 
 def date_formatter(raw_day, raw_month):
@@ -17,40 +41,33 @@ def date_formatter(raw_day, raw_month):
               'dec': '12'
               }
     month = months[raw_month]
-    full_date = f'{month}/{raw_day}'
+    year = '2020'
+    full_date = f'{raw_day}-{month}-{year}'
     return full_date
 
 
 def collect():
-    print("collecting Paard gigs")
     url = "https://www.paard.nl/event/?filter1=concert"
     gigs_list = []
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     gigs = soup.find_all("div", {"class": "event"})
-    venue = 'Paard'
+    venue = 'paard'
     for gig in gigs:
         event_tags = gig['data-filter1']
         if event_tags == 'concert':
-            new_gig = {}
             day = gig.parent.parent.div.em.text
             month = gig.parent.parent.div.text[-3:]
             date = date_formatter(day, month)
             artist = gig.a.h2.text
-            description = gig.p.get_text()
-            url = gig.a['href']
-            uid = str(date + artist + venue)
+            link = gig.a['href']
+            uid = f'{artist}_{date}_{venue}'
 
-            new_gig = {uid: {"venue": venue,
-                             "date": date,
-                             "artist": artist,
-                             "description": description,
-                             "url": url
-                             }}
-            gigs_list.append(gig)
-    print(len(gigs_list), 'gigs found for Paard')
+            new_gig = {"id": uid,
+                       "venue": venue,
+                       "date": date,
+                       "artist": artist,
+                       "link": link,
+                       }
+            gigs_list.append(new_gig)
     return gigs_list
-
-
-if __name__ == '__main__':
-    collect()
