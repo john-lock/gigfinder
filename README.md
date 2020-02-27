@@ -1,23 +1,31 @@
-Each .py file represents a AWS Lambda function, 1 for each venue as well as a Notify which is for email dispatch.
-
-Each Function inherets the dependencies from Layer at runtime
-
-
-Requests:
-arn:aws:lambda:us-east-2:770693421928:layer:Klayers-python38-requests:3 
-
-
-BS4:
-arn:aws:lambda:us-east-2:770693421928:layer:Klayers-python38-beautifulsoup4:3
-
 
 ## TODO:
-Unify Date format
-Unify UID to artist_date_venue
-add aditional field like ticket Url
+stop need for repeating layers for each function
 
 Add notify function upon DB updates
-
-
-Updateable Artist list
 Warnings when low number of gigs
+
+Bimhuis:
+ - add Links for BH official
+
+
+Add:
+ BIRD:
+ https://bird-rotterdam.nl/agenda/
+
+ Rotown:
+ https://www.rotown.nl/
+
+
+ Patronaat
+ https://www.patronaat.nl/concerten?eventpage=2
+ =5 etc
+
+
+ Concert Hall Eindhoven:
+ https://www.muziekgebouweindhoven.nl/nl/agenda/?p=2
+ p=20 etc
+
+
+
+ Antwerp:
