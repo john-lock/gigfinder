@@ -1,29 +1,11 @@
-import boto3
-import json
 import requests
-from botocore.exceptions import ClientError
 from bs4 import BeautifulSoup
-from data import tracked_artists
+from common import notify_checker
 
 
 def paard(event, context):
-    table = dynamodb.Table("gf_db")
     data = collect()
-    for gig in data:
-        if gig['artist'].lower() in tracked_artists:
-            try:
-                table.put_item(
-                    Item={'id': gig['id'],
-                          'artist': gig['artist'],
-                          'venue': gig['venue'],
-                          'date': gig['date'],
-                          'link': gig['link']
-                          },
-                    ConditionExpression='attribute_not_exists(id)'
-                )
-            except ClientError as e:
-                if e.response['Error']['Code'] != 'ConditionalCheckFailedException':
-                    raise
+    notify_checker(data)
 
 
 def date_formatter(raw_day, raw_month):
@@ -47,12 +29,12 @@ def date_formatter(raw_day, raw_month):
 
 
 def collect():
+    venue = 'paard'
     url = "https://www.paard.nl/event/?filter1=concert"
-    gigs_list = []
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     gigs = soup.find_all("div", {"class": "event"})
-    venue = 'paard'
+    gigs_list = []
     for gig in gigs:
         event_tags = gig['data-filter1']
         if event_tags == 'concert':

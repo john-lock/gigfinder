@@ -1,5 +1,34 @@
 import requests
 from bs4 import BeautifulSoup
+from common import tracked_artists, notify_checker
+
+
+def bimhuis(event, context):
+    data = collect()
+    notify_checker(data)
+
+
+def collect():
+    """
+    Scrapping the official site even infrequently can lead
+    to a fast 24h IP blacklisting so a backup source is sometimes needed.
+    """
+    try:
+        url = "https://www.bimhuis.nl/agenda/"
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        gigs = soup.find_all("div", {"class": "content"})
+        formatted_gigs = bimhuis_formatter(gigs)
+
+    except IOError:
+        url = 'https://muziekladder.nl/nl/locaties/bimhuis-Amsterdam'
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        gigs = soup.find_all('div', {'class': 'event clearfix'})
+        formatted_gigs = muziekladder_formatter(gigs)
+
+    finally:
+        return formatted_gigs
 
 
 def date_formatter(raw_date):
@@ -19,7 +48,8 @@ def date_formatter(raw_date):
               'December': '12'
               }
     month = months[date_data[2]]
-    full_date = f'{month}/{date}'
+    year = '2020'
+    full_date = f'{date}-{month}-{year}'
     return full_date
 
 
@@ -41,60 +71,41 @@ def date_formatter_backup_bimhuis(raw_date):
               }
     month = months[str(date_data[2]).upper()]
     year = date_data[3]
-    full_date = f'{month}/{date}/{year}'
+    full_date = f'{date}-{month}-{year}'
     return full_date
 
 
-def collect():
-    print("Collecting Bimhuis gigs")
-    try:
-        url = "https://www.bimhuis.nl/agenda/"
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        gigs = soup.find_all("div", {"class": "content"})
-        formatted_gigs = formatter('Bimhuis', gigs)
-
-    except IOError:
-        print('Trying backup URL for Bimhuis')
-        url = 'https://muziekladder.nl/nl/locaties/bimhuis-Amsterdam'
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        gigs = soup.find_all('div', {'class': 'event clearfix'})
-        formatted_gigs = formatter('muziekladder', gigs)
-
-    finally:
-        print(len(formatted_gigs), 'gigs found for Bimhuis')
-        return formatted_gigs
-
-
-def formatter(site, gigs):
-    venue = 'Bimhuis'
+def bimhuis_formatter(gigs):
+    venue = 'bimhuis'
     gigs_list = []
-    if site == 'bimhuis':
-        for i in range(len(gigs)):
-            gig = {}
-            date = date_formatter(gigs[i].div.get_text())
-            artist = str(gigs[i].h3)[4:-5]
-            description = str(gigs[i].p.get_text())
-            uid = str(date + artist + venue)
+    for i in range(len(gigs)):
+        date = date_formatter(gigs[i].div.get_text())
+        artist = str(gigs[i].h3)[4:-5]
+        uid = f'{artist}_{date}_{venue}'
+        gig = {"id": uid,
+               "venue": venue,
+               "date": date,
+               "artist": artist,
+               }
+        gigs_list.append(gig)
+    return gigs_list
 
-            gig = {uid: {"venue": venue,
-                         "date": date,
-                         "artist": artist,
-                         "description": description,
-                         }}
-            gigs_list.append(gig)
-        return gigs_list
-    else:
-        for i in range(len(gigs)):
-            gig = {}
-            date = date_formatter_backup_bimhuis(gigs[i].a.get_text())
-            artist = gigs[i].span.get_text()
-            uid = str(date + artist + venue)
 
-            gig = {uid: {"venue": venue,
-                         "date": date,
-                         "artist": artist,
-                         }}
-            gigs_list.append(gig)
+def muziekladder_formatter(gigs):
+    venue = 'bimhuis'
+    gigs_list = []
+    for i in range(len(gigs)):
+        base_link = "https://muziekladder.nl/nl/gig/?id=4a8362fe6e1353bfbf199f239f20373fe17b3187cf31813ff72d0308_bimhuis&datestring=2020-02-27&g=https%3A%2F%2Fwww.bimhuis.nl%2Fagenda%2Foum-4"
+        gig_link = gigs[i].a['href']
+        link = f'{base_link}{gig_link}'
+        date = date_formatter_backup_bimhuis(gigs[i].a.get_text())
+        artist = gigs[i].span.get_text()
+        uid = f'{artist}_{date}_{venue}'
+        gig = {"id": uid,
+               "venue": venue,
+               "date": date,
+               "artist": artist,
+               "link": link,
+               }
+        gigs_list.append(gig)
     return gigs_list

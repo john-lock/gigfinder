@@ -1,31 +1,10 @@
-import boto3
-import json
 import requests
-from botocore.exceptions import ClientError
-from bs4 import BeautifulSoup
-from data import tracked_artists
-
-dynamodb = boto3.resource('dynamodb')
+from common import notify_checker
 
 
 def tivoli(event, context):
-    table = dynamodb.Table("gf_db")
     data = collect()
-    for gig in data:
-        if gig['artist'].lower() in tracked_artists:
-            try:
-                table.put_item(
-                    Item={'id': gig['id'],
-                          'artist': gig['artist'],
-                          'venue': gig['venue'],
-                          'date': gig['date'],
-                          'link': gig['link']
-                          },
-                    ConditionExpression='attribute_not_exists(id)'
-                )
-            except ClientError as e:
-                if e.response['Error']['Code'] != 'ConditionalCheckFailedException':
-                    raise
+    notify_checker(data)
 
 
 def collect():

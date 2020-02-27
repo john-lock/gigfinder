@@ -40,7 +40,7 @@ def collect():
                 ticket_url = event.get('ticket_url')
                 date = str(datetime.datetime.fromtimestamp(int(event['date'])))
                 artist = str(event['name'])
-                uid = artist + '_' + date[:10] + '_' + venue
+                uid = f'{artist}_{date[:10]}_{venue}'
                 gig = {"id": uid,
                        "venue": venue,
                        "date": date[:10],

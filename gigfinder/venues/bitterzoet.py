@@ -22,7 +22,8 @@ def date_formatter(date, raw_month):
               }
     if str(raw_month) in months:
         month = months[raw_month]
-        full_date = f'{month}/{date}'
+        year = '2020'
+        full_date = f'{date}-{month}-{year}'
         return full_date
     else:
         return 'this week'
@@ -56,7 +57,7 @@ def collect():
         line_split = entry_data.split('\n')
         artist = line_split[1]
         description = line_split[2]
-        uid = str(date + artist + venue)
+        uid = f'{artist}_{date}_{venue}'
 
         gig = {uid: {"venue": venue,
                      "date": date,
