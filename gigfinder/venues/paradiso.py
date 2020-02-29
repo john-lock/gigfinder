@@ -34,5 +34,5 @@ def collect():
                "artist": artist,
                "link": ticket_url,
                }
-        gigs_list.append(new_gig)
+        gigs_list.append(gig)
     return gigs_list

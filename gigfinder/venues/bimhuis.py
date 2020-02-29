@@ -8,29 +8,6 @@ def bimhuis(event, context):
     notify_checker(data)
 
 
-def collect():
-    """
-    Scrapping the official site even infrequently can lead
-    to a fast 24h IP blacklisting so a backup source is sometimes needed.
-    """
-    try:
-        url = "https://www.bimhuis.nl/agenda/"
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        gigs = soup.find_all("div", {"class": "content"})
-        formatted_gigs = bimhuis_formatter(gigs)
-
-    except IOError:
-        url = 'https://muziekladder.nl/nl/locaties/bimhuis-Amsterdam'
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        gigs = soup.find_all('div', {'class': 'event clearfix'})
-        formatted_gigs = muziekladder_formatter(gigs)
-
-    finally:
-        return formatted_gigs
-
-
 def date_formatter(raw_date):
     date_data = raw_date.split()
     date = date_data[1]
@@ -109,3 +86,28 @@ def muziekladder_formatter(gigs):
                }
         gigs_list.append(gig)
     return gigs_list
+
+
+def collect():
+    """
+    Scrapping the official site even infrequently can lead
+    to a fast 24h IP blacklisting so a backup source is sometimes needed.
+    """
+    formatted_gigs = []
+    try:
+        url = "https://www.bimhuis.nl/agenda/"
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        gigs = soup.find_all("div", {"class": "content"})
+        formatted_gigs = bimhuis_formatter(gigs)
+
+    except IOError:
+        url = 'https://muziekladder.nl/nl/locaties/bimhuis-Amsterdam'
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        gigs = soup.find_all('div', {'class': 'event clearfix'})
+        formatted_gigs = muziekladder_formatter(gigs)
+
+    finally:
+        print(len(formatted_gigs))
+        return formatted_gigs
