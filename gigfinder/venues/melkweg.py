@@ -1,30 +1,11 @@
-import boto3
-from botocore.exceptions import ClientError
 import datetime
 import requests
-from data import tracked_artists
-
-dynamodb = boto3.resource('dynamodb')
+from common import notify_checker
 
 
 def melkweg(event, context):
-    table = dynamodb.Table("gf_db")
     data = collect()
-    for gig in data:
-        if gig['artist'].lower() in tracked_artists:
-            try:
-                table.put_item(
-                    Item={'id': gig['id'],
-                          'artist': gig['artist'],
-                          'venue': gig['venue'],
-                          'date': gig['date'],
-                          'link': gig['link'],
-                          },
-                    ConditionExpression='attribute_not_exists(id)'
-                )
-            except ClientError as e:
-                if e.response['Error']['Code'] != 'ConditionalCheckFailedException':
-                    raise
+    notify_checker(data)
 
 
 def collect():

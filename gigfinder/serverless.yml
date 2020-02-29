@@ -42,8 +42,8 @@ functions:
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
 
-  # bitterzoet:
-  #   handler: venues/bitterzoet.bitterzoet
-  #   layers:
-  #     - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
-  #     - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
+  bitterzoet:
+    handler: venues/bitterzoet.bitterzoet
+    layers:
+      - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
+      - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  

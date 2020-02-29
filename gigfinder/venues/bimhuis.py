@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from common import tracked_artists, notify_checker
+from common import notify_checker
 
 
 def bimhuis(event, context):
