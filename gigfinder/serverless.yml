@@ -18,6 +18,9 @@ provider:
   region: eu-north-1
 
 functions:
+  notify:
+    handler: notify.lambda_handler
+
   melkweg:
     handler: venues/melkweg.melkweg
     layers:
@@ -40,10 +43,10 @@ functions:
     handler: venues/bimhuis.bimhuis
     layers:
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
-      - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
+      - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3
 
-  bitterzoet:
-    handler: venues/bitterzoet.bitterzoet
+  paradiso:
+    handler: venues/paradiso.paradiso
     layers:
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
