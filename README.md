@@ -1,9 +1,6 @@
 
 ## TODO:
-stop need for repeating layers for each function
-
-Add notify function upon DB updates
-Warnings when low number of gigs
+ - Warnings when low number of gigs
 
 Bimhuis:
  - add Links for BH official
