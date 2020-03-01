@@ -1,4 +1,6 @@
 service: gigfinder
+plugins:
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
@@ -22,9 +24,9 @@ functions:
   notify:
     handler: notify.lambda_handler
     environment:
-      MAILGUN_API_DOMAIN: 'sandboxb383a70d650c4170812b83ee673a027b.mailgun.org'
-      NOTIFY_EMAIL_ADDRESS: 'john@johnlock.nl'
-      MAILGUN_API_KEY: '73571773f6da55ee97987dc77da591d5-dc5f81da-f65ca745'
+      MAILGUN_API_DOMAIN: ${env:MAILGUN_API_DOMAIN}
+      NOTIFY_EMAIL_ADDRESS: ${env:NOTIFY_EMAIL_ADDRESScd}
+      MAILGUN_API_KEY: ${env:MAILGUN_API_KEY}
     layers:
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3
 
