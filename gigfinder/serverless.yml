@@ -56,3 +56,9 @@ functions:
     handler: venues/paradiso.paradiso
     layers:
       - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3  
+
+  bird:
+    handler: venues/bird.bird
+    layers:
+      - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-beautifulsoup4:3
+      - arn:aws:lambda:eu-north-1:770693421928:layer:Klayers-python38-requests:3
